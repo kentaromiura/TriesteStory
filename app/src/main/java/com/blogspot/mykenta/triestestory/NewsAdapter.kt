@@ -1,13 +1,23 @@
 package com.blogspot.mykenta.triestestory
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.ColorFilter
+import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.view.SimpleDraweeView
+import com.facebook.imagepipeline.common.Priority
+import com.facebook.imagepipeline.datasource.BaseBitmapDataSubscriber
+import com.facebook.imagepipeline.request.ImageRequest
+import com.facebook.imagepipeline.request.ImageRequestBuilder
 import java.util.*
 
 class NewsAdapter(dataSet: ArrayList<News>, mContext: Context) :
@@ -38,9 +48,12 @@ class NewsAdapter(dataSet: ArrayList<News>, mContext: Context) :
 
             viewHolder = ViewHolder()
             val inflater = LayoutInflater.from(context)
-            convertView = inflater.inflate(R.layout.notizia, parent, false)
+            if (dataModel.html == null)
+                convertView = inflater.inflate(R.layout.notizia_piccolo, parent, false)
+            else
+                convertView = inflater.inflate(R.layout.notizia, parent, false)
             viewHolder.titolo = convertView!!.findViewById(R.id.titolo_notizia) as TextView
-            viewHolder.immagine = convertView.findViewById(R.id.immagine_notizia) as SimpleDraweeView
+            viewHolder.immagine = convertView.findViewById(R.id.immagine_notizia) as? SimpleDraweeView
             viewHolder.descrizione = convertView.findViewById(R.id.anteprima_notizia) as? TextView
 
             convertView.tag = viewHolder
@@ -51,12 +64,43 @@ class NewsAdapter(dataSet: ArrayList<News>, mContext: Context) :
         lastPosition = position
 
         viewHolder.titolo?.text = dataModel.title
-        val uri = Uri.parse(dataModel!!.image)
-        viewHolder.immagine?.setImageURI(uri)
+        if (dataModel.html == null) {
+            viewHolder.titolo?.text = Html.fromHtml(
+            "<b>" + dataModel.title + "</b>" + dataModel.summary,
+            object: Html.ImageGetter {
+                override fun getDrawable(url: String): Drawable {
+                    val d = object : Drawable() {
+                        override fun draw(canvas: Canvas?) {
 
-        if (viewHolder.descrizione != null) {
-            viewHolder.descrizione?.text = dataModel.summary
+                        }
+
+                        override fun setAlpha(alpha: Int) {
+
+                        }
+
+                        override fun getOpacity(): Int {
+                            return 0
+                        }
+
+                        override fun setColorFilter(colorFilter: ColorFilter?) {
+                            //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                        }
+                    }
+                    // returns an empty image.
+                    d.setBounds(0,0,0,0)
+                    viewHolder.immagine?.setImageURI(url)
+                    return d
+                }
+            }, null)
+        } else {
+            val uri = Uri.parse(dataModel!!.image)
+            viewHolder.immagine?.setImageURI(uri)
+
+            if (viewHolder.descrizione != null) {
+                viewHolder.descrizione?.text = dataModel.summary
+            }
         }
+
         // Return the completed view to render on screen
         return convertView
     }
