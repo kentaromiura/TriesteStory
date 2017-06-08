@@ -2,32 +2,21 @@ package com.blogspot.mykenta.triestestory
 
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.content.DialogInterface
 import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.text.Html
+import android.view.View
 import android.view.Window
 import android.webkit.WebView
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.AsyncHttpResponseHandler
 import cz.msebera.android.httpclient.Header
-import cz.msebera.android.httpclient.client.params.ClientPNames
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.ByteArrayInputStream
 import java.text.SimpleDateFormat
 import java.util.*
-//import com.sun.xml.internal.ws.api.message.AddressingUtils.getFirstHeader
-import cz.msebera.android.httpclient.HttpResponse
-import cz.msebera.android.httpclient.impl.client.DefaultRedirectHandler
-import cz.msebera.android.httpclient.protocol.HttpContext
-import android.text.Html
-import android.view.View
-import android.widget.TextView
-import android.view.ViewGroup
-import android.widget.ArrayAdapter
-
-
 
 
 class MainActivity : AppCompatActivity() {
@@ -41,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         val context = this
 
         val timeStamp = SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().time)
-        val uri = Uri.parse("http://www.osmer.fvg.it/previ/oggi_t.png?d=" + timeStamp)
+        val uri = Uri.parse("http://www.osmer.fvg.it/previ/oggi_t.png?d=$timeStamp")
 
         meteo_image.setImageURI(uri)
         val client = AsyncHttpClient()
@@ -75,7 +64,7 @@ class MainActivity : AppCompatActivity() {
                         webview.loadUrl(dataModel.link?.replace("ilpiccolo.gelocal", "m.ilpiccolo.gelocal"))
                     } else {
                         webview.loadData(
-                                "<html><body><b>" + dataModel.title + "</b><br />" + dataModel.html + "<br /><a href=" + dataModel.link?.replace("ilpiccolo.gelocal", "m.ilpiccolo.gelocal") + ">Articolo completo</a></body></html>",
+                                "<html><body><b>${dataModel.title}</b><br />${dataModel.html}<br /><a href=${dataModel.link?.replace("ilpiccolo.gelocal", "m.ilpiccolo.gelocal")}>Articolo completo</a></body></html>",
                                 "text/html",
                                 "UTF-8"
                         )
@@ -111,7 +100,7 @@ class MainActivity : AppCompatActivity() {
                             webview.loadUrl("about:blank")
                             webview.loadUrl(meteo?.link)
                         } else {
-                            webview.loadData(meteo?.html + "<br /><a href=" + meteo?.link + ">Articolo completo</a>", "text/html", "utf-8")
+                            webview.loadData("${meteo?.html}<br /><a href=${meteo?.link}>Articolo completo</a>", "text/html", "utf-8")
                         }
                         dialog.show()
                     }
@@ -124,7 +113,7 @@ class MainActivity : AppCompatActivity() {
                     meteo_image.setOnClickListener(onclick_listener)
                 } else {
                     val osmerclient = AsyncHttpClient()
-                    osmerclient.get("http://dev.meteo.fvg.it/xml/previsioni/PW" + timeStamp + ".xml", object : AsyncHttpResponseHandler() {
+                    osmerclient.get("http://dev.meteo.fvg.it/xml/previsioni/PW${timeStamp}.xml", object : AsyncHttpResponseHandler() {
                         override fun onSuccess(statusCode: Int, headers: Array<out Header>?, response: ByteArray?) {
                             val osmerParser = OsmerParser()
                             val previsioni = osmerParser.parse(ByteArrayInputStream(response))
@@ -134,12 +123,12 @@ class MainActivity : AppCompatActivity() {
                                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
                                 dialog.setContentView(R.layout.dialog)
                                 val webview = dialog.findViewById(R.id.dialog_webview) as WebView
-                                val html = "<b>"+ previsioni.situazione_generale + "</b><br />" + previsioni.tendenza
+                                val html = "<b>${previsioni.situazione_generale}</b><br />${previsioni.tendenza}"
                                 if (isTablet) {
                                     webview.loadUrl("about:blank")
                                     webview.loadUrl("http://m.meteo.fvg.it/home.php")
                                 } else {
-                                    webview.loadData(html + "<br /><a href=http://m.meteo.fvg.it/home.php>Articolo completo (OSMER) </a>", "text/html", "utf-8")
+                                    webview.loadData("$html<br /><a href=http://m.meteo.fvg.it/home.php>Articolo completo (OSMER) </a>", "text/html", "utf-8")
                                 }
                                 dialog.show()
                             }
@@ -155,8 +144,6 @@ class MainActivity : AppCompatActivity() {
 
                         }
                     })
-
-                    // http://dev.meteo.fvg.it/xml/previsioni/PW20170607.xml
                 }
 
 
@@ -178,7 +165,7 @@ class MainActivity : AppCompatActivity() {
                         webview.loadUrl(dataModel.link)
                     } else {
                         webview.loadData(
-                                "<html><body><b>" + dataModel.title + "</b><br />" + dataModel.html + "<br /><a href=" + dataModel.link + ">Articolo completo</a></body></html>",
+                                "<html><body><b>${dataModel.title}</b><br />${dataModel.html}<br /><a href=${dataModel.link}>Articolo completo</a></body></html>",
                                 "text/html",
                                 "UTF-8"
                         )
@@ -189,9 +176,7 @@ class MainActivity : AppCompatActivity() {
 
             }
 
-            override fun onFailure(statusCode: Int, headers: Array<Header>, errorResponse: ByteArray, e: Throwable) {
-                // called when response HTTP status is "4XX" (eg. 401, 403, 404)
-            }
+            override fun onFailure(statusCode: Int, headers: Array<Header>, errorResponse: ByteArray, e: Throwable) {}
 
         })
 

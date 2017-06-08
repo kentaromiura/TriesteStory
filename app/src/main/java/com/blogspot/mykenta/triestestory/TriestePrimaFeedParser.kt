@@ -35,20 +35,14 @@ class TriestePrimaFeedParser {
                 continue
             }
             val name = parser.name
-            if (name == "title") {
-                title = readTitle(parser)
-            } else if (name == "description") {
-                summary = readDescription(parser)
-            } else if (name == "link") {
-                link = readText(parser)
-            } else if (name == "category") {
-                category = readText(parser)
-            } else if (name == "enclosure") {
-                image = readEnclosure(parser)
-            } else if (name == "content:encoded") {
-                html = readText(parser)
-            } else {
-                skip(parser)
+            when (name) {
+                "title" -> title = readTitle(parser)
+                "description" -> summary = readDescription(parser)
+                "link" -> link = readText(parser)
+                "category" -> category = readText(parser)
+                "enclosure" -> image = readEnclosure(parser)
+                "content:encoded" -> html = readText(parser)
+                else -> skip(parser)
             }
         }
         return News(title, summary, link, category, image, html)
@@ -118,7 +112,6 @@ class TriestePrimaFeedParser {
                 continue
             }
             val name = parser.name
-            // Starts by looking for the entry tag
             if (name == "channel") {
                 return readChannel(parser)
             } else {

@@ -1,7 +1,6 @@
 package com.blogspot.mykenta.triestestory
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.ColorFilter
 import android.graphics.drawable.Drawable
@@ -12,12 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
-import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.view.SimpleDraweeView
-import com.facebook.imagepipeline.common.Priority
-import com.facebook.imagepipeline.datasource.BaseBitmapDataSubscriber
-import com.facebook.imagepipeline.request.ImageRequest
-import com.facebook.imagepipeline.request.ImageRequestBuilder
 import java.util.*
 
 class NewsAdapter(dataSet: ArrayList<News>, mContext: Context) :
@@ -30,9 +24,7 @@ class NewsAdapter(dataSet: ArrayList<News>, mContext: Context) :
         internal var immagine: SimpleDraweeView? = null
     }
 
-    override fun onClick(v: View) {
-
-    }
+    override fun onClick(v: View) {}
 
     private var lastPosition = -1
 
@@ -66,25 +58,19 @@ class NewsAdapter(dataSet: ArrayList<News>, mContext: Context) :
         viewHolder.titolo?.text = dataModel.title
         if (dataModel.html == null) {
             viewHolder.titolo?.text = Html.fromHtml(
-            "<b>" + dataModel.title + "</b>" + dataModel.summary,
+            "<b>${dataModel.title}</b>${dataModel.summary}",
             object: Html.ImageGetter {
                 override fun getDrawable(url: String): Drawable {
                     val d = object : Drawable() {
-                        override fun draw(canvas: Canvas?) {
+                        override fun draw(canvas: Canvas?) {}
 
-                        }
-
-                        override fun setAlpha(alpha: Int) {
-
-                        }
+                        override fun setAlpha(alpha: Int) {}
 
                         override fun getOpacity(): Int {
                             return 0
                         }
 
-                        override fun setColorFilter(colorFilter: ColorFilter?) {
-                            //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-                        }
+                        override fun setColorFilter(colorFilter: ColorFilter?) {}
                     }
                     // returns an empty image.
                     d.setBounds(0,0,0,0)
